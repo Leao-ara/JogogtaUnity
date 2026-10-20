@@ -19,3 +19,10 @@ This produces a separate scene with built-in Unity primitives; it does not repla
 - Use Unity **2020.3.26f1** initially, matching `ProjectSettings/ProjectVersion.txt`.
 - Clone with submodules and test compilation before attempting to merge the draft PR.
 - All code changes are experimental and have not yet been executed in Unity.
+
+## Keyboard movement prototype
+- Regenerate the scene with **Tools > Independent World > Create Test Scene** after pulling these changes.
+- The capsule placeholder now has a CharacterController and IndependentPlayerController.
+- Use WASD or arrow keys to move, Left Shift to run and Space to jump (legacy Unity Input Manager bindings).
+- The camera follows the placeholder. No mouse orbit or touch controls are implemented yet.
+- The scene and components have not been compiled or run in Unity; test for project-wide errors first.
