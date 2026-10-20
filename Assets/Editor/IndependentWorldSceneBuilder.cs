@@ -6,6 +6,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using IndependentWorld;
 
 public static class IndependentWorldSceneBuilder
 {
@@ -31,6 +32,11 @@ public static class IndependentWorldSceneBuilder
         var playerMarker = GameObject.CreatePrimitive(PrimitiveType.Capsule);
         playerMarker.name = "Player Placeholder - replace with licensed character";
         playerMarker.transform.position = new Vector3(0f, 1f, 0f);
+        var capsuleCollider = playerMarker.GetComponent<CapsuleCollider>();
+        if (capsuleCollider != null)
+            Object.DestroyImmediate(capsuleCollider);
+        playerMarker.AddComponent<CharacterController>();
+        playerMarker.AddComponent<IndependentPlayerController>();
 
         var vehicleMarker = GameObject.CreatePrimitive(PrimitiveType.Cube);
         vehicleMarker.name = "Vehicle Placeholder - replace with original vehicle prefab";
@@ -49,6 +55,8 @@ public static class IndependentWorldSceneBuilder
         cameraObject.AddComponent<AudioListener>();
         cameraObject.transform.position = new Vector3(0f, 12f, -20f);
         cameraObject.transform.LookAt(new Vector3(2f, 0f, 1f));
+        var followCamera = cameraObject.AddComponent<IndependentFollowCamera>();
+        followCamera.SetTarget(playerMarker.transform);
 
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene, scenePath);
