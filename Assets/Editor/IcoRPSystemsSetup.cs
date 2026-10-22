@@ -28,7 +28,7 @@ public static class IcoRPSystemsSetup
         EnsureChild(root.transform,"Veiculos e garagens (servidor futuro)");
         EnsureChild(root.transform,"Casas e propriedades (servidor futuro)");
         EnsureChild(root.transform,"Economia e empregos (servidor futuro)");
-        EnsureChild(root.transform,"Multiplayer - integrar base existente");
+        EnsureChild(root.transform,"Multiplayer - servidor proprio futuro");
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
         Debug.Log("Icó RP: estrutura inicial de sistemas salva; login, banco e multiplayer ainda precisam de implementação.");
