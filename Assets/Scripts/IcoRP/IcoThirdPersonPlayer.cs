@@ -2,8 +2,8 @@ using UnityEngine;
 
 namespace IcoRP
 {
-    // Temporary third-person controller for testing Icó. Replace with the existing
-    // San Andreas character prefab after its dependencies are verified.
+    // Independent temporary third-person controller for testing Icó.
+    // Replace its visuals with original Icó RP assets, not GTA dependencies.
     [RequireComponent(typeof(CharacterController))]
     public class IcoThirdPersonPlayer : MonoBehaviour
     {
