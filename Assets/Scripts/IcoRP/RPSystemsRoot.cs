@@ -22,7 +22,7 @@ namespace IcoRP
     public class RPSystemsRoot : MonoBehaviour
     {
         [Header("Prototype - not a login or persistent database")]
-        public bool useExistingSanAndreasControllers = true;
+        public bool independentControllersOnly = true;
         public bool dedicatedServerAuthorityPlanned = true;
         public PlayerRPData editorExample = new PlayerRPData();
         // Never put passwords, OAuth tokens or real user emails in Unity scene assets.
