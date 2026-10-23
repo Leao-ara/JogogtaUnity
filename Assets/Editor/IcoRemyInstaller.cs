@@ -152,6 +152,11 @@ public static class IcoRemyInstaller
                     replacement.color=source.color;
                 if(source.HasProperty("_BaseColor") && replacement.HasProperty("_BaseColor"))
                     replacement.SetColor("_BaseColor",source.GetColor("_BaseColor"));
+                const string folder="Assets/IcoRP/Personagens/GeneratedMaterials";
+                if(!AssetDatabase.IsValidFolder(folder))AssetDatabase.CreateFolder("Assets/IcoRP/Personagens","GeneratedMaterials");
+                string filename=System.Text.RegularExpressions.Regex.Replace(source.name,@"[^a-zA-Z0-9_-]","_");
+                string materialPath=AssetDatabase.GenerateUniqueAssetPath(folder+"/"+filename+".mat");
+                AssetDatabase.CreateAsset(replacement,materialPath);
                 changed[i]=replacement;
                 adjusted++;
                 rendererChanged=true;
@@ -162,6 +167,7 @@ public static class IcoRemyInstaller
                 renderer.sharedMaterials=changed;
             }
         }
+        AssetDatabase.SaveAssets();
         Debug.Log("Ico RP: shaders corrigidos: "+adjusted+"; materiais sem textura associada: "+missing+
                   ". Se o personagem continuar branco, importe as imagens de textura do Mixamo.");
     }
