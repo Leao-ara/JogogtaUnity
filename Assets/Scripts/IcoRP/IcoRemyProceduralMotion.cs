@@ -13,7 +13,7 @@ namespace IcoRP
         Animator animator;
         CharacterController controller;
         Transform leftArm, rightArm, leftLeg, rightLeg;
-        Quaternion armL, armR, legL, legR;
+        Quaternion armL, armR, legL, legR, restL, restR;
         Vector3 armAxisL, armAxisR, legAxisL, legAxisR;
         float phase;
         bool ready;
@@ -41,6 +41,8 @@ namespace IcoRP
             legL = leftLeg.localRotation;
             legR = rightLeg.localRotation;
             // Determine the rotation axis from the actual skeleton instead of assuming FBX axes.
+            restL = ArmAtRest(leftArm, armL);
+            restR = ArmAtRest(rightArm, armR);
             armAxisL = GetSwingAxis(leftArm);
             armAxisR = GetSwingAxis(rightArm);
             legAxisL = GetSwingAxis(leftLeg);
@@ -78,8 +80,6 @@ namespace IcoRP
             float blend = Mathf.Clamp01(speed / 3.5f);
             phase += Time.deltaTime * animationSpeed * Mathf.Max(.25f, blend);
             float step = Mathf.Sin(phase) * strideDegrees * blend;
-            Quaternion restL = ArmAtRest(leftArm, armL);
-            Quaternion restR = ArmAtRest(rightArm, armR);
             leftArm.localRotation = Quaternion.Slerp(leftArm.localRotation,
                 Quaternion.AngleAxis(-step * .55f, armAxisL) * restL, Time.deltaTime * 14f);
             rightArm.localRotation = Quaternion.Slerp(rightArm.localRotation,
