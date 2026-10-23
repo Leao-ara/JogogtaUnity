@@ -26,12 +26,14 @@ public static class IcoRemyInstaller
         }
         // Preserve a manually positioned Remy if it is already parented correctly.
         Transform remy=visual.Find("Remy");
+        bool newlyCreated=false;
         if(!remy)
         {
             var existing=GameObject.Find("Remy");
             if(existing && existing.scene==scene)
             {
                 remy=existing.transform;
+                newlyCreated=true;
                 Undo.SetTransformParent(remy,visual,"Mover Remy para jogador");
             }
             else
@@ -39,13 +41,17 @@ public static class IcoRemyInstaller
                 var instance=(GameObject)PrefabUtility.InstantiatePrefab(asset,scene);
                 Undo.RegisterCreatedObjectUndo(instance,"Adicionar Remy");
                 remy=instance.transform;
+                newlyCreated=true;
                 Undo.SetTransformParent(remy,visual,"Vincular Remy");
             }
         }
         Undo.RecordObject(remy,"Ajustar Remy");
-        remy.localPosition=Vector3.zero;
-        remy.localRotation=Quaternion.identity;
-        remy.localScale=Vector3.one;
+        if(newlyCreated)
+        {
+            remy.localPosition=Vector3.zero;
+            remy.localRotation=Quaternion.identity;
+            remy.localScale=Vector3.one;
+        }
         var animator=remy.GetComponent<Animator>();
         if(animator)
         {
@@ -56,8 +62,9 @@ public static class IcoRemyInstaller
         // The temporary bone script rotates Mixamo arms backwards on this avatar.
         var procedural=remy.GetComponent<IcoRemyProceduralMotion>();
         if(procedural){Undo.RecordObject(procedural,"Desativar movimento provisório");procedural.enabled=false;}
-        FitRemyToPlayer(remy,visual);
+        if(newlyCreated)FitRemyToPlayer(remy,visual);
         RepairMaterials(remy);
+        remy.gameObject.SetActive(true);
         // Keep old geometry in the scene but hide its renderers only.
         int hidden=0;
         foreach(var renderer in visual.GetComponentsInChildren<Renderer>(true))
