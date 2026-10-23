@@ -20,6 +20,8 @@ public static class IcoCameraFix2026
         var go=GameObject.Find("ICO_CAMERA_JOGADOR");
         if(!go){go=new GameObject("ICO_CAMERA_JOGADOR");Undo.RegisterCreatedObjectUndo(go,"Camera Icó");}
         go.SetActive(true);
+        // Clean up orphaned components left by the old embedded camera class.
+        GameObjectUtility.RemoveMonoBehavioursWithMissingScript(go);
         go.tag="MainCamera";
         var cam=go.GetComponent<Camera>();
         if(!cam)cam=Undo.AddComponent<Camera>(go);
