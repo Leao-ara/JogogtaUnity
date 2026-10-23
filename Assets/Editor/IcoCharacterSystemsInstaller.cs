@@ -45,6 +45,7 @@ public static class IcoCharacterSystemsInstaller
             return;
         }
         if(!player.GetComponent<IcoCharacterHealth>())Undo.AddComponent<IcoCharacterHealth>(player);
+        if(!player.GetComponent<IcoHealthHUD>())Undo.AddComponent<IcoHealthHUD>(player);
         if(!player.GetComponent<IcoCharacterFall>())Undo.AddComponent<IcoCharacterFall>(player);
         if(!player.GetComponent<IcoCharacterAnimationState>())Undo.AddComponent<IcoCharacterAnimationState>(player);
         if(!player.GetComponent<IcoWalkAnimation>())Undo.AddComponent<IcoWalkAnimation>(player);
