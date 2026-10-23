@@ -61,7 +61,9 @@ public static class IcoRemyInstaller
         }
         // The temporary bone script rotates Mixamo arms backwards on this avatar.
         var procedural=remy.GetComponent<IcoRemyProceduralMotion>();
-        if(procedural){Undo.RecordObject(procedural,"Desativar movimento provisório");procedural.enabled=false;}
+        if(!procedural)procedural=Undo.AddComponent<IcoRemyProceduralMotion>(remy.gameObject);
+        Undo.RecordObject(procedural,"Ativar movimento humanoide");
+        procedural.enabled=true;
         if(newlyCreated)FitRemyToPlayer(remy,visual);
         RepairMaterials(remy);
         remy.gameObject.SetActive(true);
@@ -79,7 +81,7 @@ public static class IcoRemyInstaller
         EditorSceneManager.MarkSceneDirty(scene);
         EditorSceneManager.SaveScene(scene);
         Selection.activeGameObject=remy.gameObject;
-        EditorUtility.DisplayDialog("Icó RP","Remy vinculado ao jogador, sem alterar a posicao do jogador na cidade. "+hidden+" renderizadores antigos ocultados. Salve e teste na aba Game. As animacoes ainda precisam de um Animator Controller.","OK");
+        EditorUtility.DisplayDialog("Icó RP","Remy vinculado ao jogador, sem alterar a posicao do jogador na cidade. "+hidden+" renderizadores antigos ocultados. Salve e teste na aba Game. Movimento humanoide provisório ativado. Para animacoes profissionais, importe clips de caminhada/corrida.","OK");
     }
 
     static void FitRemyToPlayer(Transform remy,Transform visual)
