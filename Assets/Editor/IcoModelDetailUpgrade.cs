@@ -71,6 +71,7 @@ public static class IcoModelDetailUpgrade
         var visual=player.Find("ICO_MODELO_PERSONAGEM");
         if(!visual){var g=new GameObject("ICO_MODELO_PERSONAGEM");g.transform.SetParent(player,false);visual=g.transform;}
         Clear(visual);
+        if(!player.GetComponent<IcoWalkAnimation>()) Undo.AddComponent<IcoWalkAnimation>(player.gameObject);
         var skin=Mat("Pele",new Color(.55f,.34f,.22f));
         var shirt=Mat("Camisa_Azul",new Color(.09f,.24f,.42f));
         var pants=Mat("Calca_Jeans",new Color(.07f,.12f,.21f));
@@ -81,9 +82,9 @@ public static class IcoModelDetailUpgrade
         Part(visual,PrimitiveType.Sphere,"Cabelo",new Vector3(0,1.87f,-.015f),new Vector3(.285f,.12f,.285f),hair);
         for(int side=-1;side<=1;side+=2)
         {
-            Part(visual,PrimitiveType.Capsule,"Braco",new Vector3(side*.35f,1.18f,0),new Vector3(.18f,.38f,.18f),shirt,new Vector3(0,0,side*12));
+            Part(visual,PrimitiveType.Capsule,side<0?"Braco esquerdo":"Braco direito",new Vector3(side*.35f,1.18f,0),new Vector3(.18f,.38f,.18f),shirt,new Vector3(0,0,side*12));
             Part(visual,PrimitiveType.Sphere,"Mao",new Vector3(side*.43f,.83f,0),new Vector3(.15f,.17f,.15f),skin);
-            Part(visual,PrimitiveType.Capsule,"Perna",new Vector3(side*.15f,.52f,0),new Vector3(.22f,.48f,.22f),pants);
+            Part(visual,PrimitiveType.Capsule,side<0?"Perna esquerda":"Perna direita",new Vector3(side*.15f,.52f,0),new Vector3(.22f,.48f,.22f),pants);
             Part(visual,PrimitiveType.Cube,"Tenis",new Vector3(side*.15f,.10f,.11f),new Vector3(.25f,.18f,.42f),shoes);
         }
         // A real rigged humanoid and walking animations are a separate later step.
