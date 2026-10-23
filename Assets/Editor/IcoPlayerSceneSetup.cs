@@ -7,7 +7,7 @@ using IcoRP;
 
 public static class IcoPlayerSceneSetup
 {
-    [MenuItem("Icó RP/Colocar personagem na cidade")]
+    [MenuItem("Icó RP/Ferramentas anteriores/Colocar personagem na cidade")]
     public static void Setup()
     {
         Scene scene = SceneManager.GetActiveScene();
