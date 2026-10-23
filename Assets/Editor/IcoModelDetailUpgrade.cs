@@ -7,7 +7,7 @@ using IcoRP;
 
 public static class IcoModelDetailUpgrade
 {
-    [MenuItem("Icó RP/Melhorar personagem e 3 carros")]
+    [MenuItem("Icó RP/Ferramentas anteriores/Melhorar personagem e 3 carros")]
     public static void Upgrade()
     {
         var scene=SceneManager.GetActiveScene();
