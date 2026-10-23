@@ -145,6 +145,7 @@ namespace IcoRP
         IcoVehicle driving;
         CharacterController controller;
         IcoFollowCamera follow;
+        readonly System.Collections.Generic.Dictionary<Renderer,bool> rendererStates = new System.Collections.Generic.Dictionary<Renderer,bool>();
         void Awake()
         {
             player=GetComponent<IcoThirdPersonPlayer>();
@@ -175,7 +176,12 @@ namespace IcoRP
             car.SetDriver(player);
             player.enabled=false;
             controller.enabled=false;
-            foreach(var r in GetComponentsInChildren<Renderer>())r.enabled=false;
+            rendererStates.Clear();
+            foreach(var r in GetComponentsInChildren<Renderer>(true))
+            {
+                rendererStates[r]=r.enabled;
+                r.enabled=false;
+            }
             transform.SetParent(car.transform);
             transform.position=car.seat?car.seat.position:car.transform.TransformPoint(Vector3.up*.9f);
             if(follow) { follow.target=car.transform; follow.enabled=true; }
@@ -192,7 +198,9 @@ namespace IcoRP
             if(door) { door.SetOpen(true); StartCoroutine(CloseDoorAfterDelay(door)); }
             transform.SetParent(null);
             transform.position=car.transform.position+car.transform.right*2.6f+Vector3.up*.7f;
-            foreach(var r in GetComponentsInChildren<Renderer>())r.enabled=true;
+            foreach(var pair in rendererStates)
+                if(pair.Key)pair.Key.enabled=pair.Value;
+            rendererStates.Clear();
             controller.enabled=true;
             player.enabled=true;
             car.SetDriver(null);
