@@ -8,11 +8,11 @@ namespace IcoRP
     public class IcoVehicle : MonoBehaviour
     {
         public float acceleration=12f;
-        public float reverseAcceleration=9f;
+        public float reverseAcceleration=18f;
         public float brakeDeceleration=22f;
         public float steeringDegrees=95f;
         public float maxSpeed=23f;
-        public float maxReverseSpeed=8f;
+        public float maxReverseSpeed=14f;
         public float lateralGrip=7f;
         public float suspensionHeight=.65f;
         public float suspensionSpring=16000f;
