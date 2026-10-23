@@ -7,13 +7,15 @@ namespace IcoRP
     public class IcoVehicle : MonoBehaviour
     {
         public float acceleration = 18f;
-        public float reverseAcceleration = 9f;
+        public float reverseAcceleration = 18f;
         public float steeringDegrees = 85f;
         public float maxSpeed = 23f;
         public float dragOnGround = .7f;
         public Transform seat;
         [HideInInspector] public IcoThirdPersonPlayer driver;
         Rigidbody rb;
+        float driveInput;
+        float steerInput;
         void Awake()
         {
             rb=GetComponent<Rigidbody>();
@@ -22,15 +24,22 @@ namespace IcoRP
             rb.collisionDetectionMode=CollisionDetectionMode.ContinuousDynamic;
             rb.centerOfMass=new Vector3(0,-.45f,0);
         }
+        void Update()
+        {
+            driveInput = driver ? Input.GetAxisRaw("Vertical") : 0f;
+            steerInput = driver ? Input.GetAxisRaw("Horizontal") : 0f;
+        }
         void FixedUpdate()
         {
             if (!driver) return;
-            float throttle=Input.GetAxisRaw("Vertical");
-            float steer=Input.GetAxisRaw("Horizontal");
+            float throttle=driveInput;
+            float steer=steerInput;
             float speed=Vector3.Dot(rb.linearVelocity,transform.forward);
+            if (Mathf.Abs(throttle) > .01f && Mathf.Abs(speed) > .5f && Mathf.Sign(throttle) != Mathf.Sign(speed))
+                rb.AddForce(-rb.linearVelocity.normalized * rb.mass * 14f, ForceMode.Force);
             if ((throttle>0 && speed<maxSpeed)||(throttle<0 && speed>-maxSpeed*.35f))
                 rb.AddForce(transform.forward*throttle*(throttle>0?acceleration:reverseAcceleration)*rb.mass,ForceMode.Force);
-            float steering=steer*steeringDegrees*Mathf.Clamp01(Mathf.Abs(speed)/4f)*Mathf.Sign(speed);
+            float steering=steer*steeringDegrees*Mathf.Clamp01(Mathf.Abs(speed)/4f)*Mathf.Sign(Mathf.Abs(speed)>.15f?speed:throttle);
             rb.MoveRotation(rb.rotation*Quaternion.Euler(0,steering*Time.fixedDeltaTime,0));
         }
         public void SetDriver(IcoThirdPersonPlayer player) { driver=player; }
