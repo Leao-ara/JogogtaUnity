@@ -16,6 +16,7 @@ namespace IcoRP
         Rigidbody rb;
         float driveInput;
         float steerInput;
+        float reverseLogTimer;
         void Awake()
         {
             rb=GetComponent<Rigidbody>();
@@ -37,6 +38,11 @@ namespace IcoRP
             // Explicit signed target velocity: negative throttle reliably drives in reverse.
             // Preserve gravity and vertical collision response.
             float speed=Vector3.Dot(rb.linearVelocity,transform.forward);
+            if (throttle < -.5f && Time.time >= reverseLogTimer)
+            {
+                reverseLogTimer=Time.time+1f;
+                Debug.Log($"Ico RP RE: entrada={throttle}, velocidade={speed:F2}, kinematic={rb.isKinematic}, constraints={rb.constraints}, posicao={transform.position}");
+            }
             float targetSpeed=throttle>0f ? maxSpeed : (throttle<0f ? -maxSpeed*.35f : speed);
             if(Mathf.Abs(throttle)>.01f)
             {
