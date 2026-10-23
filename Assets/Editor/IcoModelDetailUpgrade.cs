@@ -117,6 +117,16 @@ public static class IcoModelDetailUpgrade
         Part(visual,PrimitiveType.Cube,"Parachoque dianteiro",new Vector3(0,.67f,length*.5f+.04f),new Vector3(1.91f,.22f,.19f),black);
         Part(visual,PrimitiveType.Cube,"Parachoque traseiro",new Vector3(0,.67f,-length*.5f-.04f),new Vector3(1.91f,.22f,.19f),black);
         Part(visual,PrimitiveType.Cube,"Grade frontal",new Vector3(0,.91f,length*.5f+.015f),new Vector3(.72f,.19f,.04f),black);
+        // Driver door uses a hinge pivot; do not replace the vehicle Rigidbody.
+        var hinge=new GameObject("Porta motorista - dobradica").transform;
+        hinge.SetParent(visual,false);
+        hinge.localPosition=new Vector3(-.96f,1.17f,.64f);
+        Part(hinge,PrimitiveType.Cube,"Porta motorista",new Vector3(0,0,-.49f),
+            new Vector3(.08f,.64f,.96f),paint);
+        var door=car.GetComponent<IcoCarDoor>();
+        if(!door)door=Undo.AddComponent<IcoCarDoor>(car.gameObject);
+        door.doorPivot=hinge;
+        door.openAngle=67f;
         for(int side=-1;side<=1;side+=2)
         {
             Part(visual,PrimitiveType.Cube,"Farol dianteiro",new Vector3(side*.71f,1.04f,length*.5f+.03f),new Vector3(.36f,.19f,.06f),lights);
