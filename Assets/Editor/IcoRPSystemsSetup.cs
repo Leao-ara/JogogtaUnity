@@ -7,7 +7,7 @@ using IcoRP;
 
 public static class IcoRPSystemsSetup
 {
-    [MenuItem("Icó RP/Preparar cena Sistemas RP")]
+    [MenuItem("Icó RP/Ferramentas anteriores/Preparar cena Sistemas RP")]
     public static void Prepare()
     {
         var scene=SceneManager.GetActiveScene();
