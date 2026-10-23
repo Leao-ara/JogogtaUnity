@@ -87,7 +87,7 @@ public static class IcoCenaBuilder {
    Box("Janela frontal decorativa",c+new Vector3(sx*.28f,2.1f,-sz/2-.17f),new Vector3(1.35f,.85f,.08f),glass,t);
    // Open front entrance. House interiors are physically traversable; doors are not yet interactive.
  }
- [MenuItem("Icó RP/Criar cena 3D completa (protótipo)")]
+ // Comando desativado para proteger a cena existente.
  public static void Build() {
   var asset=Resources.Load<TextAsset>("IcoPlanta");if(asset==null){EditorUtility.DisplayDialog("Icó RP","Falta Assets/Resources/IcoPlanta.json","OK");return;}
   plan=JsonUtility.FromJson<Plan>(asset.text);if(plan==null||plan.roads==null){Debug.LogError("Planta inválida");return;}
