@@ -31,7 +31,9 @@ namespace IcoRP
             if(animator)
             {
                 // No required GTA assets or Animator Controller.
-                animator.SetInteger("State", (int)state);
+                foreach(var parameter in animator.parameters)
+                    if(parameter.name=="State" && parameter.type==AnimatorControllerParameterType.Int)
+                    { animator.SetInteger("State",(int)state); break; }
             }
         }
     }
