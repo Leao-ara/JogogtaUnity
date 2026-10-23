@@ -77,6 +77,8 @@ namespace IcoRP
         void EnterVehicle(IcoVehicle car)
         {
             driving=car;
+            var door=car.GetComponent<IcoCarDoor>();
+            if(door) { door.SetOpen(true); StartCoroutine(CloseDoorAfterDelay(door)); }
             car.SetDriver(player);
             player.enabled=false;
             controller.enabled=false;
@@ -85,9 +87,16 @@ namespace IcoRP
             transform.localPosition=car.seat?car.seat.localPosition:Vector3.up*.9f;
             if(follow) { follow.target=car.transform; follow.enabled=true; }
         }
+        System.Collections.IEnumerator CloseDoorAfterDelay(IcoCarDoor door)
+        {
+            yield return new WaitForSeconds(.85f);
+            if(door)door.SetOpen(false);
+        }
         void ExitVehicle()
         {
             var car=driving;
+            var door=car.GetComponent<IcoCarDoor>();
+            if(door) { door.SetOpen(true); StartCoroutine(CloseDoorAfterDelay(door)); }
             transform.SetParent(null);
             transform.position=car.transform.position+car.transform.right*2.6f+Vector3.up*.7f;
             foreach(var r in GetComponentsInChildren<Renderer>())r.enabled=true;
