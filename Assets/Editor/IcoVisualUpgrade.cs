@@ -8,7 +8,7 @@ using System.Collections.Generic;
 // Visual pass for the existing Icó scene. Does not rebuild or reposition the city.
 public static class IcoVisualUpgrade
 {
-    [MenuItem("Icó RP/Melhorar visual da cena atual")]
+    [MenuItem("Icó RP/Ferramentas anteriores/Melhorar visual da cena atual")]
     public static void Upgrade()
     {
         var scene = SceneManager.GetActiveScene();
