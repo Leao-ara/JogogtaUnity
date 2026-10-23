@@ -18,8 +18,10 @@ namespace IcoRP
         private float verticalSpeed;
         private float standingHeight;
         private Vector3 standingCenter;
+        private Transform visual;
+        private Vector3 visualOriginalScale;
 
-        void Awake() { controller = GetComponent<CharacterController>(); standingHeight=controller.height; standingCenter=controller.center; }
+        void Awake() { controller = GetComponent<CharacterController>(); standingHeight=controller.height; standingCenter=controller.center; visual=transform.Find("ICO_MODELO_PERSONAGEM"); if(visual)visualOriginalScale=visual.localScale; }
         void Update()
         {
             if (!controller.enabled) return;
@@ -27,7 +29,8 @@ namespace IcoRP
             if(health && health.isDead)return;
             isCrouching=Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.C);
             float desiredHeight=isCrouching?standingHeight*.62f:standingHeight;
-            desiredHeight=isCrouching?standingHeight*.62f:standingHeight;
+            if(!visual) { visual=transform.Find("ICO_MODELO_PERSONAGEM"); if(visual)visualOriginalScale=visual.localScale; }
+            if(visual) visual.localScale=Vector3.Lerp(visual.localScale,new Vector3(visualOriginalScale.x,visualOriginalScale.y*(isCrouching?.64f:1f),visualOriginalScale.z),Time.deltaTime*12f);
             controller.height=Mathf.MoveTowards(controller.height,desiredHeight,Time.deltaTime*3f);
             controller.center=standingCenter+Vector3.up*((controller.height-standingHeight)*.5f);
             float x = Input.GetAxisRaw("Horizontal");
