@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using IcoRP;
 
 public static class IcoRemyInstaller
 {
@@ -52,6 +53,8 @@ public static class IcoRemyInstaller
             animator.applyRootMotion=false;
             EditorUtility.SetDirty(animator);
         }
+        if(!remy.GetComponent<IcoRemyProceduralMotion>())Undo.AddComponent<IcoRemyProceduralMotion>(remy.gameObject);
+        RepairMaterials(remy);
         // Keep old geometry in the scene but hide its renderers only.
         int hidden=0;
         foreach(var renderer in visual.GetComponentsInChildren<Renderer>(true))
@@ -67,6 +70,38 @@ public static class IcoRemyInstaller
         EditorSceneManager.SaveScene(scene);
         Selection.activeGameObject=remy.gameObject;
         EditorUtility.DisplayDialog("Icó RP","Remy vinculado ao jogador, sem alterar a posicao do jogador na cidade. "+hidden+" renderizadores antigos ocultados. Salve e teste na aba Game. As animacoes ainda precisam de um Animator Controller.","OK");
+    }
+
+    static void RepairMaterials(Transform remy)
+    {
+        var renderers=remy.GetComponentsInChildren<Renderer>(true);
+        int repaired=0;
+        foreach(var renderer in renderers)
+        {
+            var materials=renderer.sharedMaterials;
+            for(int i=0;i<materials.Length;i++)
+            {
+                var mat=materials[i];
+                if(!mat)continue;
+                if(mat.shader && mat.shader.name!="Hidden/InternalErrorShader")continue;
+                // Never replace texture assignments or modify the imported shared asset.
+                var copy=new Material(mat);
+                var shader=Shader.Find("Universal Render Pipeline/Lit");
+                if(!shader)shader=Shader.Find("Standard");
+                if(!shader)continue;
+                copy.shader=shader;
+                copy.name=mat.name+"_IcoRP";
+                materials[i]=copy;
+                repaired++;
+            }
+            if(repaired>0)
+            {
+                Undo.RecordObject(renderer,"Reparar material Remy");
+                renderer.sharedMaterials=materials;
+            }
+        }
+        if(repaired>0)Debug.Log("Ico RP: materiais com shader ausente reparados: "+repaired);
+        else Debug.Log("Ico RP: materiais sem shader ausente. Se Remy estiver branco, importe as texturas originais e associe aos materiais do FBX.");
     }
 }
 #endif
