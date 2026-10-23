@@ -27,8 +27,6 @@ namespace IcoRP
             if(health && health.isDead)return;
             isCrouching=Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.C);
             float desiredHeight=isCrouching?standingHeight*.62f:standingHeight;
-            if(!isCrouching && Physics.SphereCast(transform.position+Vector3.up*(controller.radius+.1f),controller.radius*.9f,Vector3.up,out _,standingHeight-controller.radius*2f,~0,QueryTriggerInteraction.Ignore))
-                isCrouching=true;
             desiredHeight=isCrouching?standingHeight*.62f:standingHeight;
             controller.height=Mathf.MoveTowards(controller.height,desiredHeight,Time.deltaTime*3f);
             controller.center=standingCenter+Vector3.up*((controller.height-standingHeight)*.5f);
