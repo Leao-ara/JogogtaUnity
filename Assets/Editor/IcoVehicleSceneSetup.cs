@@ -7,7 +7,7 @@ using IcoRP;
 
 public static class IcoVehicleSceneSetup
 {
-    [MenuItem("Icó RP/Adicionar carros de teste na cidade")]
+    [MenuItem("Icó RP/Ferramentas anteriores/Adicionar carros de teste na cidade")]
     public static void Install()
     {
         Scene scene=SceneManager.GetActiveScene();
