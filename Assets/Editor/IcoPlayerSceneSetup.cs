@@ -54,8 +54,16 @@ public static class IcoPlayerSceneSetup
             camObj.AddComponent<AudioListener>();
             camObj.AddComponent<IcoFollowCamera>();
         }
+        camObj.tag = "MainCamera";
+        var cameraComponent = camObj.GetComponent<Camera>();
+        if (!cameraComponent) cameraComponent = Undo.AddComponent<Camera>(camObj);
+        cameraComponent.enabled = true;
+        if (!camObj.GetComponent<AudioListener>()) Undo.AddComponent<AudioListener>(camObj);
         var follow = camObj.GetComponent<IcoFollowCamera>();
+        if (!follow) follow = Undo.AddComponent<IcoFollowCamera>(camObj);
+        if (!player.GetComponent<IcoVehicleInteraction>()) Undo.AddComponent<IcoVehicleInteraction>(player);
         follow.target = player.transform;
+        follow.enabled = true;
         player.GetComponent<IcoThirdPersonPlayer>().view = camObj.transform;
         camObj.transform.position = player.transform.position + new Vector3(0,3,-6);
         // Keep original aerial camera object; disable only while testing the player.
