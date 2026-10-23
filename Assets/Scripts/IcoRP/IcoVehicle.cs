@@ -84,7 +84,7 @@ namespace IcoRP
             if(brake)
             {
                 Vector3 horizontal=Vector3.ProjectOnPlane(rb.linearVelocity,Vector3.up);
-                rb.linearVelocity-=Vector3.MoveTowards(Vector3.zero,horizontal,brakeDeceleration*dt)*-1f;
+                rb.linearVelocity-=Vector3.MoveTowards(Vector3.zero,horizontal,brakeDeceleration*dt);
             }
             else if(Mathf.Abs(throttle)<.01f)
             {
