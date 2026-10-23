@@ -37,6 +37,9 @@ namespace IcoRP
         }
     }
 
+    // Standalone follow camera. Works for the character and for the driven car.
+    [DefaultExecutionOrder(100)]
+    [RequireComponent(typeof(Camera))]
     public class IcoFollowCamera : MonoBehaviour
     {
         public Transform target;
@@ -44,27 +47,49 @@ namespace IcoRP
         public float height = 2.2f;
         public float mouseSensitivity = 2.2f;
         public float smoothing = 12f;
-        private float yaw, pitch = 15f;
-        void Start() { yaw = transform.eulerAngles.y; }
+        public bool avoidObstacles = false;
+        float yaw;
+        float pitch = 15f;
+        bool initialized;
+
+        void OnEnable() { initialized = false; }
         void LateUpdate()
         {
-            if (!target) return;
+            if (!target)
+            {
+                var player = GameObject.Find("ICO_JOGADOR_TESTE");
+                if (player) target = player.transform;
+                if (!target) return;
+            }
+            if (!initialized)
+            {
+                yaw = target.eulerAngles.y;
+                initialized = true;
+                transform.position = DesiredPosition();
+            }
             if (Input.GetMouseButton(1))
             {
                 yaw += Input.GetAxis("Mouse X") * mouseSensitivity;
-                pitch = Mathf.Clamp(pitch - Input.GetAxis("Mouse Y") * mouseSensitivity, -20f, 65f);
+                pitch = Mathf.Clamp(pitch - Input.GetAxis("Mouse Y") * mouseSensitivity, -10f, 60f);
             }
-            Quaternion rot = Quaternion.Euler(pitch, yaw, 0);
-            Vector3 focus = target.position + Vector3.up * height;
-            Vector3 desired = focus - rot * Vector3.forward * distance;
-            // Avoid camera clipping into buildings and terrain.
-            Vector3 dir = desired - focus;
-            if (Physics.SphereCast(focus, .22f, dir.normalized, out RaycastHit hit,
-                dir.magnitude, ~0, QueryTriggerInteraction.Ignore) &&
-                !hit.transform.IsChildOf(target))
-                desired = focus + dir.normalized * Mathf.Max(.6f, hit.distance - .25f);
-            transform.position = Vector3.Lerp(transform.position, desired, Time.deltaTime * smoothing);
-            transform.rotation = rot;
+            Vector3 desired = DesiredPosition();
+            if (avoidObstacles)
+            {
+                Vector3 focus = target.position + Vector3.up * height;
+                Vector3 direction = desired - focus;
+                if (Physics.SphereCast(focus, .2f, direction.normalized, out RaycastHit hit,
+                    direction.magnitude, ~0, QueryTriggerInteraction.Ignore) &&
+                    !hit.transform.IsChildOf(target))
+                    desired = focus + direction.normalized * Mathf.Max(.6f, hit.distance - .2f);
+            }
+            float factor = 1f - Mathf.Exp(-Mathf.Max(.1f, smoothing) * Time.deltaTime);
+            transform.position = Vector3.Lerp(transform.position, desired, factor);
+            transform.LookAt(target.position + Vector3.up * height);
+        }
+        Vector3 DesiredPosition()
+        {
+            var orbit = Quaternion.Euler(pitch, yaw, 0);
+            return target.position + Vector3.up * height - orbit * Vector3.forward * distance;
         }
     }
 }
