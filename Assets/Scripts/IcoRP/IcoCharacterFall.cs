@@ -6,10 +6,17 @@ namespace IcoRP
     {
         Rigidbody body;
         CharacterController controller;
+        CapsuleCollider fallCollider;
         public float fallImpulse=1.8f;
         void Awake()
         {
             controller=GetComponent<CharacterController>();
+            fallCollider=GetComponent<CapsuleCollider>();
+            if(!fallCollider)fallCollider=gameObject.AddComponent<CapsuleCollider>();
+            fallCollider.radius=controller?controller.radius:.33f;
+            fallCollider.height=controller?controller.height:1.85f;
+            fallCollider.center=controller?controller.center:Vector3.up*.93f;
+            fallCollider.enabled=false;
             body=GetComponent<Rigidbody>();
             if(!body)body=gameObject.AddComponent<Rigidbody>();
             body.isKinematic=true;
@@ -19,6 +26,7 @@ namespace IcoRP
         public void Fall()
         {
             if(controller)controller.enabled=false;
+            if(fallCollider)fallCollider.enabled=true;
             body.isKinematic=false;
             body.useGravity=true;
             body.constraints=RigidbodyConstraints.None;
@@ -32,6 +40,7 @@ namespace IcoRP
             body.isKinematic=true;
             body.useGravity=false;
             body.constraints=RigidbodyConstraints.FreezeRotation;
+            if(fallCollider)fallCollider.enabled=false;
             transform.rotation=Quaternion.Euler(0,transform.eulerAngles.y,0);
         }
     }
