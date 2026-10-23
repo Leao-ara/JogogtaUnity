@@ -53,7 +53,10 @@ public static class IcoRemyInstaller
             animator.applyRootMotion=false;
             EditorUtility.SetDirty(animator);
         }
-        if(!remy.GetComponent<IcoRemyProceduralMotion>())Undo.AddComponent<IcoRemyProceduralMotion>(remy.gameObject);
+        // The temporary bone script rotates Mixamo arms backwards on this avatar.
+        var procedural=remy.GetComponent<IcoRemyProceduralMotion>();
+        if(procedural){Undo.RecordObject(procedural,"Desativar movimento provisório");procedural.enabled=false;}
+        FitRemyToPlayer(remy,visual);
         RepairMaterials(remy);
         // Keep old geometry in the scene but hide its renderers only.
         int hidden=0;
@@ -72,36 +75,88 @@ public static class IcoRemyInstaller
         EditorUtility.DisplayDialog("Icó RP","Remy vinculado ao jogador, sem alterar a posicao do jogador na cidade. "+hidden+" renderizadores antigos ocultados. Salve e teste na aba Game. As animacoes ainda precisam de um Animator Controller.","OK");
     }
 
+    static void FitRemyToPlayer(Transform remy,Transform visual)
+    {
+        // Scale using the imported mesh bounds rather than assuming FBX units.
+        var meshes=remy.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+        Bounds bounds=new Bounds();
+        bool hasBounds=false;
+        foreach(var mesh in meshes)
+        {
+            if(!mesh.sharedMesh)continue;
+            var b=mesh.bounds;
+            if(b.size.y<.01f)continue;
+            if(!hasBounds){bounds=b;hasBounds=true;}else bounds.Encapsulate(b);
+        }
+        if(!hasBounds)
+        {
+            foreach(var mesh in remy.GetComponentsInChildren<MeshRenderer>(true))
+            {if(!hasBounds){bounds=mesh.bounds;hasBounds=true;}else bounds.Encapsulate(mesh.bounds);}
+        }
+        if(!hasBounds || bounds.size.y<.01f)return;
+        float ratio=Mathf.Clamp(1.75f/bounds.size.y,.01f,100f);
+        remy.localScale=remy.localScale*ratio;
+        // Recompute after scaling; align feet to the visual container's origin.
+        Physics.SyncTransforms();
+        hasBounds=false;
+        foreach(var mesh in remy.GetComponentsInChildren<Renderer>(true))
+        {
+            if(mesh.bounds.size.y<.01f)continue;
+            if(!hasBounds){bounds=mesh.bounds;hasBounds=true;}else bounds.Encapsulate(mesh.bounds);
+        }
+        if(hasBounds)
+        {
+            Vector3 offset=visual.position-new Vector3(bounds.center.x,bounds.min.y,bounds.center.z);
+            remy.position+=offset;
+        }
+        Debug.Log("Ico RP: Remy ajustado para aproximadamente 1,75m de altura.");
+    }
+
     static void RepairMaterials(Transform remy)
     {
-        var renderers=remy.GetComponentsInChildren<Renderer>(true);
-        int repaired=0;
-        foreach(var renderer in renderers)
+        // Use existing textures where present. A plain FBX cannot supply missing images.
+        var shader=Shader.Find("Universal Render Pipeline/Lit");
+        if(!shader)shader=Shader.Find("Standard");
+        if(!shader)return;
+        int adjusted=0,missing=0;
+        foreach(var renderer in remy.GetComponentsInChildren<Renderer>(true))
         {
-            var materials=renderer.sharedMaterials;
-            for(int i=0;i<materials.Length;i++)
+            var originals=renderer.sharedMaterials;
+            var changed=(Material[])originals.Clone();
+            bool rendererChanged=false;
+            for(int i=0;i<originals.Length;i++)
             {
-                var mat=materials[i];
-                if(!mat)continue;
-                if(mat.shader && mat.shader.name!="Hidden/InternalErrorShader")continue;
-                // Never replace texture assignments or modify the imported shared asset.
-                var copy=new Material(mat);
-                var shader=Shader.Find("Universal Render Pipeline/Lit");
-                if(!shader)shader=Shader.Find("Standard");
-                if(!shader)continue;
-                copy.shader=shader;
-                copy.name=mat.name+"_IcoRP";
-                materials[i]=copy;
-                repaired++;
+                var source=originals[i];
+                if(!source)continue;
+                var tex=source.HasProperty("_BaseMap")?source.GetTexture("_BaseMap"):null;
+                if(!tex && source.HasProperty("_MainTex"))tex=source.GetTexture("_MainTex");
+                if(!tex)missing++;
+                bool broken=!source.shader || source.shader.name=="Hidden/InternalErrorShader";
+                if(!broken && !tex)continue;
+                if(!broken)continue;
+                var replacement=new Material(shader);
+                replacement.name=source.name+"_IcoRP";
+                if(tex)
+                {
+                    if(replacement.HasProperty("_BaseMap"))replacement.SetTexture("_BaseMap",tex);
+                    if(replacement.HasProperty("_MainTex"))replacement.SetTexture("_MainTex",tex);
+                }
+                if(source.HasProperty("_Color") && replacement.HasProperty("_Color"))
+                    replacement.color=source.color;
+                if(source.HasProperty("_BaseColor") && replacement.HasProperty("_BaseColor"))
+                    replacement.SetColor("_BaseColor",source.GetColor("_BaseColor"));
+                changed[i]=replacement;
+                adjusted++;
+                rendererChanged=true;
             }
-            if(repaired>0)
+            if(rendererChanged)
             {
-                Undo.RecordObject(renderer,"Reparar material Remy");
-                renderer.sharedMaterials=materials;
+                Undo.RecordObject(renderer,"Corrigir shader do Remy");
+                renderer.sharedMaterials=changed;
             }
         }
-        if(repaired>0)Debug.Log("Ico RP: materiais com shader ausente reparados: "+repaired);
-        else Debug.Log("Ico RP: materiais sem shader ausente. Se Remy estiver branco, importe as texturas originais e associe aos materiais do FBX.");
+        Debug.Log("Ico RP: shaders corrigidos: "+adjusted+"; materiais sem textura associada: "+missing+
+                  ". Se o personagem continuar branco, importe as imagens de textura do Mixamo.");
     }
 }
 #endif
