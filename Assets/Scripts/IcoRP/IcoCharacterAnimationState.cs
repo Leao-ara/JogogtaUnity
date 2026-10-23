@@ -28,7 +28,8 @@ namespace IcoRP
                 var v=controller?controller.velocity:Vector3.zero;v.y=0;
                 state=v.magnitude<.2f?State.Idle:(v.magnitude>movement.walkSpeed+0.5f?State.Run:State.Walk);
             }
-            if(animator)
+            // An Animator component without a runtime controller has no parameters to query.
+            if(animator && animator.isActiveAndEnabled && animator.runtimeAnimatorController)
             {
                 // No required GTA assets or Animator Controller.
                 foreach(var parameter in animator.parameters)
