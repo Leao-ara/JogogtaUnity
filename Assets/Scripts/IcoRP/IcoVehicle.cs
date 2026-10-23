@@ -47,12 +47,12 @@ namespace IcoRP
         {
             player=GetComponent<IcoThirdPersonPlayer>();
             controller=GetComponent<CharacterController>();
-            var camera=Camera.main;
-            if(camera)follow=camera.GetComponent<IcoFollowCamera>();
+            follow=Object.FindFirstObjectByType<IcoFollowCamera>();
         }
         void Update()
         {
             if(!Input.GetKeyDown(KeyCode.E))return;
+            if(!follow) follow=Object.FindFirstObjectByType<IcoFollowCamera>();
             if(driving){ ExitVehicle();return; }
             IcoVehicle nearest=null;
             float best=enterDistance*enterDistance;
@@ -63,6 +63,7 @@ namespace IcoRP
                 if(d<best){best=d;nearest=car;}
             }
             if(nearest)EnterVehicle(nearest);
+            else Debug.Log("Icó RP: aproxime-se a menos de "+enterDistance+" metros de um carro.");
         }
         void EnterVehicle(IcoVehicle car)
         {
@@ -73,7 +74,7 @@ namespace IcoRP
             foreach(var r in GetComponentsInChildren<Renderer>())r.enabled=false;
             transform.SetParent(car.transform);
             transform.localPosition=car.seat?car.seat.localPosition:Vector3.up*.9f;
-            if(follow)follow.target=car.transform;
+            if(follow) { follow.target=car.transform; follow.enabled=true; }
         }
         void ExitVehicle()
         {
