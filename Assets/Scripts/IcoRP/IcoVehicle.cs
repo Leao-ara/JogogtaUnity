@@ -26,7 +26,7 @@ namespace IcoRP
         }
         void Update()
         {
-            driveInput = driver ? Input.GetAxisRaw("Vertical") : 0f;
+            driveInput = driver ? (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow) ? -1f : (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow) ? 1f : Input.GetAxisRaw("Vertical"))) : 0f;
             steerInput = driver ? Input.GetAxisRaw("Horizontal") : 0f;
         }
         void FixedUpdate()
@@ -34,11 +34,20 @@ namespace IcoRP
             if (!driver) return;
             float throttle=driveInput;
             float steer=steerInput;
+            // Explicit signed target velocity: negative throttle reliably drives in reverse.
+            // Preserve gravity and vertical collision response.
             float speed=Vector3.Dot(rb.linearVelocity,transform.forward);
-            if (Mathf.Abs(throttle) > .01f && Mathf.Abs(speed) > .5f && Mathf.Sign(throttle) != Mathf.Sign(speed))
-                rb.AddForce(-rb.linearVelocity.normalized * rb.mass * 14f, ForceMode.Force);
-            if ((throttle>0 && speed<maxSpeed)||(throttle<0 && speed>-maxSpeed*.35f))
-                rb.AddForce(transform.forward*throttle*(throttle>0?acceleration:reverseAcceleration)*rb.mass,ForceMode.Force);
+            float targetSpeed=throttle>0f ? maxSpeed : (throttle<0f ? -maxSpeed*.35f : speed);
+            if(Mathf.Abs(throttle)>.01f)
+            {
+                float rate=throttle<0f ? reverseAcceleration : acceleration;
+                float nextSpeed=Mathf.MoveTowards(speed,targetSpeed,rate*Time.fixedDeltaTime);
+                Vector3 velocity=rb.linearVelocity;
+                Vector3 planar=Vector3.ProjectOnPlane(velocity,Vector3.up);
+                Vector3 lateral=planar-transform.forward*speed;
+                rb.linearVelocity=transform.forward*nextSpeed+lateral*.96f+Vector3.up*velocity.y;
+                speed=nextSpeed;
+            }
             float steering=steer*steeringDegrees*Mathf.Clamp01(Mathf.Abs(speed)/4f)*Mathf.Sign(Mathf.Abs(speed)>.15f?speed:throttle);
             rb.MoveRotation(rb.rotation*Quaternion.Euler(0,steering*Time.fixedDeltaTime,0));
         }
