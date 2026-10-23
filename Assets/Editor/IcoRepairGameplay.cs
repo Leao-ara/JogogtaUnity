@@ -7,7 +7,7 @@ using IcoRP;
 
 public static class IcoRepairGameplay
 {
-    [MenuItem("Icó RP/Corrigir camera e entrada nos carros")]
+    [MenuItem("Icó RP/Ferramentas anteriores/Corrigir camera e entrada nos carros")]
     public static void Repair()
     {
         var scene=SceneManager.GetActiveScene();
@@ -29,7 +29,7 @@ public static class IcoRepairGameplay
             var camera=cam.GetComponent<Camera>();
             if(camera)camera.enabled=true;
             var follow=cam.GetComponent<IcoFollowCamera>();
-            if(follow){follow.target=player.transform;follow.enabled=true;}
+            if(follow){follow.target=player.transform;follow.avoidObstacles=false;follow.enabled=true;}
         }
         if(!player.GetComponent<IcoVehicleInteraction>())Undo.AddComponent<IcoVehicleInteraction>(player);
         // If cars were spawned far from the player, place player near the first one.
